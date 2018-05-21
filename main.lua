@@ -1,52 +1,53 @@
-require ('player');
-require ('bullet');
+require ('love/system');
+
+require ('game/plane');
+require ('game/bullet');
+require ('game/game');
 
 images = {}
 
-player = Player (200, 710);
-bullets = {}
-
+game.init()
 
 function love.load()
+
     images['player'] = love.graphics.newImage ('assets/plane.png');
-    player.width = images['player']:getWidth();
+    game.player.width = images['player']:getWidth();
+    game.player.height = images['player']:getHeight();
 
     images['bullet'] = love.graphics.newImage ('assets/bullet.png');
 end
 
-function love.draw(dt)
-	for i, bullet in ipairs(bullets) do
+function love.draw(delta)
+	love.graphics.print("FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+
+	for i, bullet in pairs(game.bullets) do
 		love.graphics.draw(images['bullet'], bullet.x, bullet.y)
 	end
 
-    love.graphics.draw (images['player'], player.x, player.y)
+    love.graphics.draw (images['player'], game.player.x, game.player.y)
 end
 
 
-function love.update(dt)
+function love.update(delta)
 	if love.keyboard.isDown('escape') then
 		love.event.push('quit')
 	end
 
-	if not player.ready then
-		player:cooldown (dt)
-	end
+	local input = {}
 
-	for i, bullet in ipairs(bullets) do
-		bullet:move (dt);
-		if bullet.y < 0 then 
-			table.remove(bullets, i)
-		end
-	end
-
-	if love.keyboard.isDown('space') and player.ready then
-		table.insert(bullets, player:fire())
+    if love.keyboard.isDown('space') then
+        input.fire = true
 	end
 
 	if love.keyboard.isDown('left','a') then
-		player:move ('left', dt);
-	elseif love.keyboard.isDown('right','d') then
-		player:move ('right', dt)
+		input.left = true
 	end
+
+	if love.keyboard.isDown('right','d') then
+		input.right = true
+	end
+
+	game.update (delta, input)
+
 
 end
