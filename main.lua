@@ -7,33 +7,38 @@ terrain = nil
 
 map =
 {
-    scale = 1,
-    view =
-    {
-        x = 0,
-        y = 0,
-        width = 16,
-        height = 10
-    },
+    width = 20,
+    height = 20,
     tile =
     {
         width = 32,
         height = 32
     },
-    width = 20,
-    height = 20,
+    view =
+    {
+        x = 1,
+        y = 1,
+        width = 16,
+        height = 10
+    },
+    zoom = 
+    {
+        x = 1,
+        y = 1
+    },
+    batch = nil,
     data =
     {
-       {2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
        {0, 1, 0, 0, 2, 2, 2, 0, 3, 0, 3, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-       {0, 1, 0, 0, 2, 0, 2, 0, 3, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 1, 0, 2, 2, 2, 0, 0, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
-       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-       {0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 0, 2, 0, 2, 0, 3, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 1, 2, 2, 2, 2, 0, 0, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
+       {0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
        {0, 2, 2, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0},
        {0, 2, 0, 0, 0, 3, 0, 3, 0, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0},
@@ -44,7 +49,31 @@ map =
        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
        {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-    }
+    },
+    new = function ()
+        map.batch = love.graphics.newSpriteBatch(terrain.image, map.view.width * map.view.height) 
+    end,
+    update = function ()
+        map.batch:clear()
+        for x=0, map.view.width do
+            for y=0, map.view.height do
+                map.batch:add (
+                    terrain.tiles [map.data[x+math.floor(map.view.x)][y+math.floor(map.view.y)]].quad,
+                    x*map.tile.width,y*map.tile.height
+                    )
+            end
+        end
+        map.batch:flush()
+    end,
+    move = function (x, y)
+        old = {x=map.view.x, y=map.view.y} 
+        map.view.x = math.max(math.min(map.view.x + x, map.width - map.view.width), 1)
+        map.view.y = math.max(math.min(map.view.y + y, map.height - map.view.height), 1)
+        -- only update if we actually moved
+        if math.floor(map.view.x) ~= math.floor(old.x) or math.floor(map.view.y) ~= math.floor(old.y) then
+            map.update()
+        end
+    end
 }
 
 function love.load()
@@ -53,40 +82,39 @@ function love.load()
     terrain:tile (1,6,4)
     terrain:tile (2,6,8)
     terrain:tile (3,6,12)
+    map.new()
+    map.update()
 end
 
 function love.draw(delta)
---[[    terrain.tiles[0]:draw (0,0)
-    terrain.tiles[1]:draw (32,0)
-    terrain.tiles[2]:draw (64,0)
-    terrain.tiles[3]:draw (96,0)--]]
 
-   for y=1, map.view.height do
-      for x=1, map.view.width do
-         terrain.tiles[map.data[y+map.view.y][x+map.view.x]]:draw (((x-1)*map.tile.width)+0, ((y-1)*map.tile.height)+0)
-      end
-   end
+  love.graphics.draw(
+    map.batch,
+    math.floor(-map.zoom.x*(map.view.x%1)*map.tile.width), 
+    math.floor(-map.zoom.y*(map.view.y%1)*map.tile.height),
+    0, 
+    map.zoom.x, 
+    map.zoom.y
+    )
+  love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
 
 end
 
 function love.update(delta)
 
-end
-
-function love.keypressed(key, unicode)
-   if key == 'up' then
-      map.view.y = map.view.y-1
-      if map.view.y < 0 then map.view.y = 0; end
-   end
-   if key == 'down' then
-      map.view.y = map.view.y+1
-      if map.view.y > map.height-map.view.height then map.view.y = map.height-map.view.height; end
-   end
-
-   if key == 'left' then
-      map.view.x = math.max(map.view.x-1, 0)
-   end
-   if key == 'right' then
-      map.view.x = math.min(map.view.x+1, map.width-map.view.width)
-   end
+	if love.keyboard.isDown('escape') then
+		love.event.push('quit')
+	end
+    if love.keyboard.isDown("up")  then
+        map.move(0, -0.2*map.tile.height*delta)
+    end
+    if love.keyboard.isDown("down")  then
+        map.move(0, 0.2*map.tile.height*delta)
+    end
+    if love.keyboard.isDown("left")  then
+        map.move(-0.2*map.tile.width*delta, 0)
+    end
+    if love.keyboard.isDown("right")  then
+        map.move(0.2*map.tile.width*delta, 0)
+    end
 end

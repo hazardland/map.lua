@@ -5,6 +5,7 @@ sprite =
         self.width = width
         self.height = height
         self.image = love.graphics.newImage (path)
+        self.image:setFilter("nearest", "nearest")
         self.dimensions = {self.image:getDimensions()}
         self.tiles = {}
         function self:tile (name, row, cell)
