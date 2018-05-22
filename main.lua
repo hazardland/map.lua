@@ -1,53 +1,92 @@
-require ('love/system');
+require ('love/system')
+require ('love/sprite')
+require ('love/tile')
+require ('util/debug')
 
-require ('game/plane');
-require ('game/bullet');
-require ('game/game');
+terrain = nil
 
-images = {}
-
-game.init()
+map =
+{
+    scale = 1,
+    view =
+    {
+        x = 0,
+        y = 0,
+        width = 16,
+        height = 10
+    },
+    tile =
+    {
+        width = 32,
+        height = 32
+    },
+    width = 20,
+    height = 20,
+    data =
+    {
+       {2, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 0, 2, 2, 2, 0, 3, 0, 3, 0, 1, 1, 1, 0, 0, 0, 0, 0},
+       {0, 1, 0, 0, 2, 0, 2, 0, 3, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 1, 0, 2, 2, 2, 0, 0, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
+       {0, 1, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 1, 0, 1, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 2, 2, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0},
+       {0, 2, 0, 0, 0, 3, 0, 3, 0, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0},
+       {0, 2, 0, 0, 0, 3, 0, 3, 0, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0},
+       {0, 2, 2, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 2, 2, 2, 0, 0, 0, 0},
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
+    }
+}
 
 function love.load()
-
-    images['player'] = love.graphics.newImage ('assets/plane.png');
-    game.player.width = images['player']:getWidth();
-    game.player.height = images['player']:getHeight();
-
-    images['bullet'] = love.graphics.newImage ('assets/bullet.png');
+    terrain = sprite.new ('assets/terrain.png', 32, 32)
+    terrain:tile (0,6,1)
+    terrain:tile (1,6,4)
+    terrain:tile (2,6,8)
+    terrain:tile (3,6,12)
 end
 
 function love.draw(delta)
-	love.graphics.print("FPS: "..tostring(love.timer.getFPS( )), 10, 10)
+--[[    terrain.tiles[0]:draw (0,0)
+    terrain.tiles[1]:draw (32,0)
+    terrain.tiles[2]:draw (64,0)
+    terrain.tiles[3]:draw (96,0)--]]
 
-	for i, bullet in pairs(game.bullets) do
-		love.graphics.draw(images['bullet'], bullet.x, bullet.y)
-	end
+   for y=1, map.view.height do
+      for x=1, map.view.width do
+         terrain.tiles[map.data[y+map.view.y][x+map.view.x]]:draw (((x-1)*map.tile.width)+0, ((y-1)*map.tile.height)+0)
+      end
+   end
 
-    love.graphics.draw (images['player'], game.player.x, game.player.y)
 end
 
-
 function love.update(delta)
-	if love.keyboard.isDown('escape') then
-		love.event.push('quit')
-	end
 
-	local input = {}
+end
 
-    if love.keyboard.isDown('space') then
-        input.fire = true
-	end
+function love.keypressed(key, unicode)
+   if key == 'up' then
+      map.view.y = map.view.y-1
+      if map.view.y < 0 then map.view.y = 0; end
+   end
+   if key == 'down' then
+      map.view.y = map.view.y+1
+      if map.view.y > map.height-map.view.height then map.view.y = map.height-map.view.height; end
+   end
 
-	if love.keyboard.isDown('left','a') then
-		input.left = true
-	end
-
-	if love.keyboard.isDown('right','d') then
-		input.right = true
-	end
-
-	game.update (delta, input)
-
-
+   if key == 'left' then
+      map.view.x = math.max(map.view.x-1, 0)
+   end
+   if key == 'right' then
+      map.view.x = math.min(map.view.x+1, map.width-map.view.width)
+   end
 end

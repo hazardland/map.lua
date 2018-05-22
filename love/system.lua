@@ -2,10 +2,10 @@ system =
 {
     screen =
     {
-        getWidth = function()
+        width = function()
             return love.graphics.getWidth()
         end,
-        getHeight = function ()
+        height = function ()
             return love.graphics.getHeight()
         end
     }
