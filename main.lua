@@ -1,77 +1,12 @@
 require ('love/system')
 require ('love/sprite')
 require ('love/tile')
+require ('love/map/orthogonal')
 require ('util/debug')
+
 
 terrain = nil
 
-map =
-{
-    width = 20,
-    height = 16,
-    tile =
-    {
-        width = 32,
-        height = 32
-    },
-    view =
-    {
-        x = 1,
-        y = 1,
-        width = 16,
-        height = 10
-    },
-    zoom = 
-    {
-        x = 1,
-        y = 1
-    },
-    batch = nil,
-    data =
-    {
-       {3, 3, 3, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 0, 2, 2, 2, 0, 3, 0, 3, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-       {0, 0, 0, 0, 2, 0, 2, 0, 3, 0, 3, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 1, 2, 2, 2, 2, 0, 0, 3, 0, 0, 1, 1, 0, 0, 0, 0, 0, 0},
-       {0, 0, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 1, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 1, 1, 1, 0, 0, 0, 0, 0},
-       {0, 1, 0, 2, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 2, 0, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 1, 0, 2, 1, 1, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-       {0, 2, 2, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 2, 0, 0, 0, 0, 0, 0},
-       {0, 2, 0, 0, 0, 3, 0, 3, 0, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0},
-       {0, 2, 0, 0, 0, 3, 0, 3, 0, 1, 0, 1, 0, 2, 0, 0, 0, 0, 0, 0},
-       {0, 2, 2, 2, 0, 3, 3, 3, 0, 1, 1, 1, 0, 2, 2, 2, 0, 0, 0, 0},
-       {0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0, 0},
-
-    },
-    new = function ()
-        map.batch = love.graphics.newSpriteBatch(terrain.image, map.view.width * map.view.height) 
-    end,
-    update = function ()
-        map.batch:clear()
-        for y=0, map.view.height do
-            for x=0, map.view.width do
-                map.batch:add (
-                    terrain.tiles [map.data[y+math.floor(map.view.y)][x+math.floor(map.view.x)]].quad,
-                    x*map.tile.width,y*map.tile.height
-                    )
-            end
-        end
-        map.batch:flush()
-    end,
-    move = function (x, y)
-        old = {x=map.view.x, y=map.view.y} 
-        map.view.x = math.max(math.min(map.view.x + x, map.width - map.view.width), 1)
-        map.view.y = math.max(math.min(map.view.y + y, map.height - map.view.height), 1)
-        -- only update if we actually moved
-        if math.floor(map.view.x) ~= math.floor(old.x) or math.floor(map.view.y) ~= math.floor(old.y) then
-            map.update()
-        end
-    end
-}
 
 function love.load()
     terrain = sprite.new ('assets/terrain.png', 32, 32)
@@ -87,10 +22,10 @@ function love.draw(delta)
 
   love.graphics.draw(
     map.batch,
-    math.floor(-map.zoom.x*(map.view.x%1)*map.tile.width), 
+    math.floor(-map.zoom.x*(map.view.x%1)*map.tile.width),
     math.floor(-map.zoom.y*(map.view.y%1)*map.tile.height),
-    0, 
-    map.zoom.x, 
+    0,
+    map.zoom.x,
     map.zoom.y
     )
   love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
