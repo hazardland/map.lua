@@ -55,10 +55,10 @@ map =
     end,
     update = function ()
         map.batch:clear()
-        for x=0, map.view.width do
-            for y=0, map.view.height do
+        for y=0, map.view.height do
+            for x=0, map.view.width do
                 map.batch:add (
-                    terrain.tiles [map.data[x+math.floor(map.view.x)][y+math.floor(map.view.y)]].quad,
+                    terrain.tiles [map.data[y+math.floor(map.view.y)][x+math.floor(map.view.x)]].quad,
                     x*map.tile.width,y*map.tile.height
                     )
             end
