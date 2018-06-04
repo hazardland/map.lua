@@ -3,36 +3,40 @@ require ('love/sprite')
 require ('love/tile')
 require ('love/map/orthogonal')
 require ('util/debug')
+require ('game/sheep')
 
 
 terrain = nil
+sheep1 = nil
 
 
 function love.load()
+    
     terrain = sprite.new ('assets/terrain.png', 32, 32)
     terrain:tile (0,6,1)
     terrain:tile (1,6,4)
     terrain:tile (2,6,8)
     terrain:tile (3,6,12)
+    
     map.new()
     map.update()
+
+    sheep1 = sheep.new (1,1,map)
 end
 
 function love.draw(delta)
+    map.draw ()
 
-  love.graphics.draw(
-    map.batch,
-    math.floor(-map.zoom.x*(map.view.x%1)*map.tile.width),
-    math.floor(-map.zoom.y*(map.view.y%1)*map.tile.height),
-    0,
-    map.zoom.x,
-    map.zoom.y
-    )
-  love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
+    sheep1:draw ()
 
+    love.graphics.print("FPS: "..love.timer.getFPS(), 10, 20)
+    love.graphics.print("X: "..map.view.x*32+map.view.width*32, 10, 50)
+    love.graphics.print("Y: "..map.view.y*32+map.view.height*32, 10, 35)
 end
 
 function love.update(delta)
+
+    sheep1:update(delta)
 
 	if love.keyboard.isDown('escape') then
 		love.event.push('quit')

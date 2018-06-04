@@ -14,11 +14,7 @@ map =
         width = 16,
         height = 10
     },
-    zoom =
-    {
-        x = 1,
-        y = 1
-    },
+    zoom = 1,
     batch = nil,
     data =
     {
@@ -47,16 +43,27 @@ map =
         map.batch:clear()
         for y=0, math.min(map.view.height,map.height-1) do
             for x=0, math.min(map.view.width,map.width-1) do
-                print (y+math.floor(map.view.y).." "..x+math.floor(map.view.x))
+                -- print (y+math.floor(map.view.y).." "..x+math.floor(map.view.x))
                 if map.data[y+math.floor(map.view.y)]~=nill and map.data[y+math.floor(map.view.y)][x+math.floor(map.view.x)]~=nil then
                     map.batch:add (
                             terrain.tiles [map.data[y+math.floor(map.view.y)][x+math.floor(map.view.x)]].quad,
-                        x*map.tile.width,y*map.tile.height
+                            x*map.tile.width,
+                            y*map.tile.height
                         )
                 end
             end
         end
         map.batch:flush()
+    end,
+    draw = function ()
+        love.graphics.draw(
+            map.batch,
+            math.floor(-map.zoom*(map.view.x%1)*map.tile.width),
+            math.floor(-map.zoom*(map.view.y%1)*map.tile.height),
+            0,
+            map.zoom,
+            map.zoom
+        )
     end,
     move = function (x, y)
         if x~=0 and map.width<=map.view.width then return end
@@ -68,6 +75,12 @@ map =
         if math.floor(map.view.x) ~= math.floor(old.x) or math.floor(map.view.y) ~= math.floor(old.y) then
             map.update()
         end
-        print (map.view.x..", "..map.view.y)
+        -- print (map.view.x..", "..map.view.y)
+    end,
+    y = function (y)
+        return math.floor(-map.zoom*map.view.y*map.tile.height)+y
+    end,
+    x = function (x)
+        return math.floor(-map.zoom*map.view.x*map.tile.width)+x
     end
 }
